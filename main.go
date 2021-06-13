@@ -1,5 +1,6 @@
 package main
 
 func main() {
-	initTelegram()
+	twitterApi := initTwitter()
+	initTelegram(twitterApi)
 }

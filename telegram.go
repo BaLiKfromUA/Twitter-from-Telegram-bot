@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/ChimeraCoder/anaconda"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"gopkg.in/tucnak/telebot.v2"
@@ -13,7 +15,7 @@ import (
 var tgBot *telebot.Bot = nil
 var tgUserId int
 
-func initTelegram() {
+func initTelegram(twitterApi *anaconda.TwitterApi) {
 	log.Println("Get config")
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	channelId, _ := strconv.ParseInt(os.Getenv("TELEGRAM_CHANNEL_ID"), 10, 64)
@@ -32,14 +34,24 @@ func initTelegram() {
 	tgBot = bot
 
 	bot.Handle(telebot.OnChannelPost, func(inputMessage *telebot.Message) {
-		log.Println(inputMessage.Chat.ID)
 
 		if inputMessage.Chat.ID != channelId {
 			log.Println(inputMessage.Chat.ID, " not accepted")
 			return
 		}
 
-		fmt.Println(inputMessage)
+		if !strings.Contains(inputMessage.Text, "#twitter") {
+			log.Println("No #twitter tag!")
+			return
+		}
+
+		tweetText := strings.ReplaceAll(inputMessage.Text, "#twitter", "")
+		log.Println(tweetText)
+		_, err = twitterApi.PostTweet(tweetText, nil)
+
+		if err != nil {
+			tgLog(err.Error(), tgUserId)
+		}
 	})
 
 	fmt.Println(getChannelInfo(channelId, bot))
