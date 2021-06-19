@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ChimeraCoder/anaconda"
+	"github.com/dghubble/go-twitter/twitter"
 	"log"
 	"os"
 	"strconv"
@@ -15,10 +15,10 @@ import (
 var tgBot *telebot.Bot = nil
 var tgUserId int
 
-func initTelegram(twitterApi *anaconda.TwitterApi) {
+func initTelegram(twitterApi *twitter.Client) {
 	log.Println("Get config")
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-	channelId, _ := strconv.ParseInt(os.Getenv("TELEGRAM_CHANNEL_ID"), 10, 64)
+	channelId, _ := strconv.ParseInt(os.Getenv("TEST_CHANNEL_ID"), 10, 64)
 	tgUserId, _ = strconv.Atoi(os.Getenv("TELEGRAM_USER_ID"))
 
 	log.Println("Start bot")
@@ -47,10 +47,13 @@ func initTelegram(twitterApi *anaconda.TwitterApi) {
 
 		tweetText := strings.ReplaceAll(inputMessage.Text, "#twitter", "")
 		log.Println(tweetText)
-		_, err = twitterApi.PostTweet(tweetText, nil)
+		// Send a Tweet
+		_, _, err := twitterApi.Statuses.Update(tweetText, nil)
 
 		if err != nil {
 			tgLog(err.Error(), tgUserId)
+		} else {
+			log.Println("Tweet has been created!")
 		}
 	})
 
