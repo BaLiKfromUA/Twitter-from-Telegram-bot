@@ -16,7 +16,7 @@ var tgUserId int
 func initTelegram(twitterApi *twitter.Client) {
 	log.Println("Get config")
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-	channelId, _ := strconv.ParseInt(os.Getenv("TEST_CHANNEL_ID"), 10, 64)
+	channelId, _ := strconv.ParseInt(os.Getenv("TELEGRAM_CHANNEL_ID"), 10, 64)
 	tgUserId, _ = strconv.Atoi(os.Getenv("TELEGRAM_USER_ID"))
 	webhookURL := "https://telegram-to-twitter-bot.herokuapp.com/" + botToken
 
