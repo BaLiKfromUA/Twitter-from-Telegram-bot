@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
+	"gopkg.in/tucnak/telebot.v2"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-	"time"
-
-	"gopkg.in/tucnak/telebot.v2"
 )
 
 var tgBot *telebot.Bot = nil
@@ -20,11 +18,20 @@ func initTelegram(twitterApi *twitter.Client) {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	channelId, _ := strconv.ParseInt(os.Getenv("TEST_CHANNEL_ID"), 10, 64)
 	tgUserId, _ = strconv.Atoi(os.Getenv("TELEGRAM_USER_ID"))
+	webhookURL := "https://telegram-to-twitter-bot.herokuapp.com/" + botToken
 
 	log.Println("Start bot")
+
+	webhook := &telebot.Webhook{
+		Endpoint: &telebot.WebhookEndpoint{
+			PublicURL: webhookURL,
+		},
+	}
+
 	bot, err := telebot.NewBot(telebot.Settings{
-		Token:  botToken,
-		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		Token: botToken,
+		//Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		Poller: webhook,
 	})
 
 	if err != nil {
@@ -46,14 +53,14 @@ func initTelegram(twitterApi *twitter.Client) {
 		}
 
 		tweetText := strings.ReplaceAll(inputMessage.Text, "#twitter", "")
-		log.Println(tweetText)
+
 		// Send a Tweet
 		_, _, err := twitterApi.Statuses.Update(tweetText, nil)
 
 		if err != nil {
 			tgLog(err.Error(), tgUserId)
 		} else {
-			log.Println("Tweet has been created!")
+			tgLog("New tweet has been created!", tgUserId)
 		}
 	})
 
