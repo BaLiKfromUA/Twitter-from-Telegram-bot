@@ -26,6 +26,7 @@ func initTelegram(twitterApi *twitter.Client) {
 		Endpoint: &telebot.WebhookEndpoint{
 			PublicURL: webhookURL,
 		},
+		Listen: ":"+os.Getenv("PORT"),
 	}
 
 	bot, err := telebot.NewBot(telebot.Settings{
